@@ -1,0 +1,14 @@
+<!-- templates/user_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}detail{% endblock title %}
+
+{% block content %}
+<h1>ユーザー詳細</h1>
+<p>ユーザー名：{{ request.user.username }}</p>
+<p>メールアドレス：{{ request.user.email }}</p>
+<nav>
+    <a href="{% url 'edit' %}">編集</a>
+    <a href="{% url 'logout' %}">ログアウト</a>
+</nav>
+{% endblock %}
