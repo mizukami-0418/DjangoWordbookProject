@@ -146,3 +146,31 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
+
+
+# セキュリティ設定
+
+# HTTPSリダイレクトを強制する。（開発中はFalseで設定）
+SECURE_SSL_REDIRECT = False
+
+# HSTSヘッダーを設定する
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# X-Frame-Optionsヘッダーを設定する
+X_FRAME_OPTIONS = 'DENY'
+
+# X-Content-Type-Optionsヘッダーを設定する
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# X-XSS-Protectionヘッダーを設定する
+SECURE_BROWSER_XSS_FILTER = True
+
+# プロキシサーバーからのSSLヘッダーを設定する
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# セッションとCSRF保護の設定
+# セッションとCSRFクッキーをHTTPS経由でのみ送信する
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
