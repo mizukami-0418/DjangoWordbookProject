@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserLoginForm
+from .forms import UserRegistrationForm, UserLoginForm, UserEditForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
@@ -70,4 +70,4 @@ def user_edit(request):
             messages.error(request, '失敗したので再入力してください')
     else:
         form = UserEditForm(instance=request.user)
-    return render(request, 'user_edit.html', {'form': form})
+    return render(request, 'accounts/user_edit.html', {'form': form})

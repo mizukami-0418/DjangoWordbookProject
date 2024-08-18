@@ -8,7 +8,7 @@
 <p>ユーザー名：{{ request.user.username }}</p>
 <p>メールアドレス：{{ request.user.email }}</p>
 <nav>
-    {% comment %} <a href="{% url 'edit' %}">編集</a> {% endcomment %}
+    <a href="{% url 'edit' %}">編集</a>
     <a href="{% url 'logout' %}">ログアウト</a>
 </nav>
 {% endblock %}
