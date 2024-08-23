@@ -1,0 +1,13 @@
+<!-- templates/contact/contact.html -->
+
+{% extends "base.html" %}
+{% block title %}CONTACT{% endblock %}
+{% block content %}
+<h4>お問い合わせ</h4>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">送信</button>
+    </form> 
+</div>
+{% endblock %}

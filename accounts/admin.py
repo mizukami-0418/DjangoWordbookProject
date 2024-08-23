@@ -13,13 +13,13 @@ class UserAdmin(BaseUserAdmin):
 
     # ユーザー選択時に表示されるフィールド
     fieldsets = (
-        ('ユーザー情報', {'fields': ('email', 'username')}),
-        ('権限', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+        ('user_info(ユーザー情報)', {'fields': ('email', 'username')}),
+        ('permission(権限)', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
     )
 
     # 管理者画面でのユーザー作成時のフィールドを設定
     add_fieldsets = (
-        ('ユーザー作成', {
+        ('user_create(ユーザー作成)', {
             'classes': ('wide',),
             'fields': ('email', 'username', 'password1', 'password2'),
         }),
