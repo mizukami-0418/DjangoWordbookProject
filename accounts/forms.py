@@ -23,6 +23,26 @@ class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス')
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
 
+
+class UserEditForm(forms.ModelForm):
+    new_password = forms.CharField(label='新パスワード', widget=forms.PasswordInput, required=False)
+    confirm_password = forms.CharField(label='パスワード確認用', widget=forms.PasswordInput, required=False)
+    
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'username')
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+        
+        if new_password and new_password != confirm_password:
+            raise forms.ValidationError('パスワードが一致しません')
+        
+        return cleaned_data
+
+# 管理者権限でのユーザー作成用フォーム
 class UserCreationForm(forms.ModelForm):
     username = forms.CharField(label='ユーザー名')
     email = forms.EmailField(label='メールアドレス')
@@ -46,22 +66,3 @@ class UserCreationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-
-
-class UserEditForm(forms.ModelForm):
-    new_password = forms.CharField(label='新パスワード', widget=forms.PasswordInput, required=False)
-    confirm_password = forms.CharField(label='パスワード確認用', widget=forms.PasswordInput, required=False)
-    
-    class Meta:
-        model = CustomUser
-        fields = ('email', 'username')
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        new_password = cleaned_data.get('new_password')
-        confirm_password = cleaned_data.get('confirm_password')
-        
-        if new_password and new_password != confirm_password:
-            raise forms.ValidationError('パスワードが一致しません')
-        
-        return cleaned_data
