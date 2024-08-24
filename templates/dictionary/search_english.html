@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<h1>和英辞典モード</h1>
+<form method="get" action="{% url 'search_english' %}">
+    <input type="text" name="query" value="{{ query }}" placeholder="日本語を入力">
+    <button type="submit">検索</button>
+</form>
+<a href="{% url 'detail' %}">詳細</a>
+<a href="{% url 'logout' %}">ログアウト</a>
+<a href="{% url 'contact' %}">問い合わせ</a>
+<a href="{% url 'search' %}">辞書機能</a>
+{% endblock %}
