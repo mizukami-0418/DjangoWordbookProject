@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<h1>[{{ query }}]の検索結果</h1>
+{% if results %}
+{% for result in results %}
+<ul>
+    <li>英語：{{ result.english }}</li>
+    <li>日本語：{{ result.japanese }}</li>
+    <li>品詞：{{ result.part_of_speech }}</li>
+    {% if result.phrase %}
+    <li>成句：{{ result.phrase }}</li>
+    {% endif %}
+</ul>
+{% endfor %}
+{% else %}
+<p>見つかりませんでした</p>
+{% endif %}
+<a href="{% url 'detail' %}">詳細</a>
+<a href="{% url 'logout' %}">ログアウト</a>
+<a href="{% url 'contact' %}">問い合わせ</a>
+<a href="{% url 'search' %}">辞書機能</a>
+{% if language == 'ja' %}
+<a href="{% url 'search_english' %}">和英辞典</a>
+{% else %}
+<a href="{% url 'search_japanese' %}">英和辞典</a>
+{% endif %}
+{% endblock %}
