@@ -1,19 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ホーム{% endblock %}</title>
-</head>
+{% include "templates/includes/head.html" %}
 <body>
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>    
-    {% endif %}
+<main class="container">
     {% block content %}
     {% endblock %}
+</main>
+{% include "templates/includes/script.html" %}
 </body>
 </html>

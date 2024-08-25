@@ -3,10 +3,13 @@
 
 {% block content %}
 <h1>ログイン</h1>
+<h4>単語帳アプリへようこそ</h4>
+<h4>こちらよりログインをお願いします</h4>
 <form method='POST'>
     {% csrf_token %}
     {{ form.as_p }}
     <button type='submit'>ログイン</button>
 </form>
-<p><a href="{% url 'home' %}">ホームへ</a></p>
+<p>まだユーザー登録をお済みでない方は<a href="{% url 'register' %}">こちら</a></p>
+<p><a href="{% url 'home' %}">トップページへ戻る</a></p>
 {% endblock %}

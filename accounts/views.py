@@ -18,7 +18,7 @@ def register(request):
             user.save()
             login(request, user)
             messages.success(request, '登録完了')
-            return redirect('detail')
+            return redirect('user_home')
         else:
             messages.error(request, '登録失敗')
     else:
@@ -35,8 +35,7 @@ def user_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'ログイン')
-                return redirect(reverse('detail'))
-                # return redirect('detail')
+                return redirect(reverse('user_home'))
             else:
                 messages.error(request, 'ログインできず')
         else:
@@ -49,14 +48,17 @@ def user_login(request):
 @login_required
 def user_logout(request):
     logout(request)
-    messages.success(request,'ログアウトが完了しました')
+    messages.success(request,'ログアウトしました')
     return redirect('home')
 
 
 @login_required
+def user_home(request):
+    return render(request, 'accounts/user_home.html')
+
+@login_required
 def user_detail(request):
     return render(request, 'accounts/user_detail.html')
-
 
 @login_required
 def user_edit(request):
