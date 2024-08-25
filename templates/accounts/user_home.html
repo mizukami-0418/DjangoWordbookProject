@@ -1,0 +1,18 @@
+<!-- templates/user_home.html -->
+{% extends "base.html" %}
+
+{% block title %}USER HOME{% endblock title %}
+
+{% block content %}
+<h1>Application Title</h1>
+{% include "includes/message.html" %}
+<h4>{{ request.user.username }}さんこんにちは！</h4>
+<h5>最初にモードを選択してね</h5>
+<ul>
+    <li><button><a href="{% url 'mode_choice' %}">辞書モード</a></button></li>
+    <li><button><a href="#">単語帳モード</a></button></li>
+    <li><a href="{% url 'detail' %}">ユーザー情報はこちら</a></li>
+    <li><a href="{% url 'contact' %}">問い合わせ</a></li>
+    <li><a href="{% url 'logout' %}">ログアウト</a></li>
+</ul>
+{% endblock %}
