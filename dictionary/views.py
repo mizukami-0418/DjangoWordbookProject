@@ -31,7 +31,7 @@ def search_english(request):
     results = []
     
     if query:
-        # 英語または日本語で検索
+        # 日本語で検索
         results = Word.objects.filter(
             Q(japanese__icontains=query)
         )
@@ -52,7 +52,7 @@ def search_japanese(request):
     results = []
     
     if query:
-        # 英語または日本語で検索
+        # 英語で検索
         results = Word.objects.filter(
             Q(english__icontains=query)
         )

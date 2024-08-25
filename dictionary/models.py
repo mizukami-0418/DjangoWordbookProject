@@ -1,17 +1,37 @@
 from django.db import models
 
 class Word(models.Model):
-    # 英語の単語
-    english = models.CharField(max_length=255)
+    LEVEL_SELECT = {
+        'Beginner': '初級(中学)',
+        'Intermediate': '中級(高校)',
+        'Advanced': '上級(大学,社会人)',
+        'Expert': '特級(それ以上)',
+    }
     
-    # 日本語の意味
-    japanese = models.CharField(max_length=255)
+    PART_OF_SPEECH_SELECT = {
+        '名': '名詞',
+        '形': '形容詞',
+        '代': '代名詞',
+        '副': '副詞',
+        '動': '動詞',
+        '自': '自動詞',
+        '他': '他動詞',
+        '自他': '自動詞、他動詞',
+        '助': '助動詞',
+        '前': '前置詞',
+        '接': '接続詞',
+        '間': '間投詞',
+    }
     
-    # 品詞
-    part_of_speech = models.CharField(max_length=50)
+    english = models.CharField(max_length=255, verbose_name='英語') # 英語
+    japanese = models.CharField(max_length=255, verbose_name='日本語') # 日本語
+    part_of_speech = models.CharField(max_length=50, choices=PART_OF_SPEECH_SELECT, verbose_name='品詞') # 品詞
+    phrase = models.TextField(blank=True, null=True, verbose_name='成句') # 成句や例文
+    level = models.CharField(max_length=20, choices=LEVEL_SELECT, verbose_name='難易度') # 難易度
     
-    # 成句や例文
-    phrase = models.TextField(blank=True, null=True)
+    class Meta:
+        db_table = 'word'
+        verbose_name_plural = '単語'
     
     def __str__(self):
-        return f"{self.english} ({self.part_of_speech}): {self.japanese} - {self.phrase}"
+        return self.english
