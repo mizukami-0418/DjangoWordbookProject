@@ -14,7 +14,7 @@
 <p>メールアドレス<br>{{ request.user.email }}</p>
 <ul>
     <li><a href="{% url 'edit' %}">ユーザー情報変更はこちら</a></li>
-    <li><a href="#">パスワード変更はこちら</a></li>
+    <li><a href="{% url 'password_change' %}">パスワード変更はこちら</a></li>
     <li><a href="{% url 'user_home' %}">ホームへ戻る</a></li>
     <li><a href="{% url 'logout' %}">ログアウト</a></li>
 </ul>

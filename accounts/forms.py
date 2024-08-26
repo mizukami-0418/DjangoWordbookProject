@@ -1,5 +1,7 @@
 from django import forms
 from .models import CustomUser
+from django.contrib.auth.forms import PasswordChangeForm
+
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -25,22 +27,29 @@ class UserLoginForm(forms.Form):
 
 
 class UserEditForm(forms.ModelForm):
-    new_password = forms.CharField(label='新パスワード', widget=forms.PasswordInput, required=False)
-    confirm_password = forms.CharField(label='パスワード確認用', widget=forms.PasswordInput, required=False)
     
     class Meta:
         model = CustomUser
         fields = ('email', 'username')
+
+# class UserEditForm(forms.ModelForm):
+#     new_password = forms.CharField(label='新パスワード', widget=forms.PasswordInput, required=False)
+#     confirm_password = forms.CharField(label='パスワード確認用', widget=forms.PasswordInput, required=False)
     
-    def clean(self):
-        cleaned_data = super().clean()
-        new_password = cleaned_data.get('new_password')
-        confirm_password = cleaned_data.get('confirm_password')
+#     class Meta:
+#         model = CustomUser
+#         fields = ('email', 'username')
+    
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         new_password = cleaned_data.get('new_password')
+#         confirm_password = cleaned_data.get('confirm_password')
         
-        if new_password and new_password != confirm_password:
-            raise forms.ValidationError('パスワードが一致しません')
+#         if new_password and new_password != confirm_password:
+#             raise forms.ValidationError('パスワードが一致しません')
         
-        return cleaned_data
+#         return cleaned_data
+
 
 # 管理者権限でのユーザー作成用フォーム
 class UserCreationForm(forms.ModelForm):
