@@ -5,6 +5,30 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 
 class UserRegistrationForm(forms.ModelForm):
+    confirm_password = forms.CharField(label='確認用パスワード', widget=forms.PasswordInput(attrs={'placeholder': '確認用パスワード'}))
+    
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'username', 'password', 'confirm_password']
+        labels = {
+            'email': 'メールアドレス',
+            'username': 'ユーザー名',
+            'password': 'パスワード',
+        }
+        widgets = {
+            'email': forms.EmailInput(attrs={'placeholder': 'sample@example.com'}),
+            'username': forms.TextInput(attrs={'placeholder': 'Yamada Taro'}),
+            'password': forms.PasswordInput(attrs={'placeholder': 'パスワード'}),
+        }        
+        
+    def clean_confirm_password(self):
+        cd = self.cleaned_data
+        if cd['password'] != cd['confirm_password']:
+            raise forms.ValidationError('パスワード不一致')
+        return cd['confirm_password']
+    
+'''
+class UserRegistrationForm(forms.ModelForm):
     username = forms.CharField(label='ユーザー名')
     email = forms.EmailField(label='メールアドレス')
     password = forms.CharField(label='パスワード', widget=forms.PasswordInput)
@@ -19,7 +43,7 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['confirm_password']:
             raise forms.ValidationError('パスワード不一致')
         return cd['confirm_password']
-
+'''
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='メールアドレス')
