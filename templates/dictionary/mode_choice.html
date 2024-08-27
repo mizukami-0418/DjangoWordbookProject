@@ -6,8 +6,9 @@
 <p>{{ request.user }}さんこんにちは。<br>どちらのモードを選択しますか</p>
 <a href="{% url 'search_japanese' %}">英和辞典</a>
 <a href="{% url 'search_english' %}">和英辞典</a>
+<a href="{% url 'search' %}">辞書</a>
 <hr>
-<a href="{% url 'detail' %}">詳細</a>
+<a href="{% url 'detail' %}">ユーザー情報はこちら</a>
 <a href="{% url 'logout' %}">ログアウト</a>
 <a href="{% url 'contact' %}">問い合わせ</a>
 {% endblock %}

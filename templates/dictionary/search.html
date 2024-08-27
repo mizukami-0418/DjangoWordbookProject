@@ -2,12 +2,14 @@
 {% block title %}Search{% endblock %}
 {% block content %}
 
-<h1>英和と和英辞典だよ</h1>
+<h1>辞書モード</h1>
+<h4>調べたい単語を検索</h4>
+<h4>英語か日本語で入力してください</h4>
 <form method="get" action="{% url 'search' %}">
-    <input type="text" name="query" value="{{ query }}" placeholder="英語または日本語で検索">
-    <button type="submit">検索</button>
+    <p><input type="text" name="query" value="{{ query }}" placeholder="英語または日本語で検索"></p>
+    <p><button type="submit">検索結果</button></p>
 </form>
-{% if results %}
+{% comment %} {% if results %}
 <h3>検索結果</h3>
 {% for result in results %}
 <ul>
@@ -21,9 +23,8 @@
 {% endfor %}
 {% else %}
 <p>見つかりませんでした</p>
-{% endif %}
-<a href="{% url 'detail' %}">詳細</a>
-<a href="{% url 'logout' %}">ログアウト</a>
-<a href="{% url 'contact' %}">問い合わせ</a>
-<a href="{% url 'search' %}">辞書機能</a>
+{% endif %} {% endcomment %}
+<p><a href="{% url 'detail' %}">ユーザー情報へ戻る</a></p>
+<p><a href="{% url 'user_home' %}">ホームへ戻る</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
 {% endblock %}

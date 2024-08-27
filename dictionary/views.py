@@ -18,10 +18,14 @@ def search(request):
     if query:
         # 英語または日本語で検索
         results = Word.objects.filter(
-            Q(english__icontains=query) | Q(japanese__icontains=query)
+            Q(english__iexact=query) | Q(japanese__icontains=query)
         )
+    else:
+        return render(request, 'dictionary/search.html', {'results': results, 'query': query})
     
-    return render(request, 'dictionary/search.html', {'results': results, 'query': query})
+    return render(request, 'dictionary/search_result.html', {'results': results, 'query': query})
+
+
 
 # 英和辞典
 @login_required
