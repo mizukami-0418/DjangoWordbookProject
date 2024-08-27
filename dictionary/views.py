@@ -1,13 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.db.models import Q
-from django.contrib import messages
 from .models import Word
 
-# モード選択
-@login_required
-def mode_choice(request):
-    return render(request, 'dictionary/mode_choice.html')
+# モード選択 選択機能を廃止したので一旦コメントアウト
+# @login_required
+# def mode_choice(request):
+#     return render(request, 'dictionary/mode_choice.html')
 
 # 単語検索機能
 @login_required
@@ -18,7 +17,7 @@ def search(request):
     if query:
         # 英語または日本語で検索
         results = Word.objects.filter(
-            Q(english__iexact=query) | Q(japanese__icontains=query)
+            Q(english__iexact=query) | Q(japanese__icontains=query) # 英語は完全一致で、日本語は部分一致
         )
     else:
         return render(request, 'dictionary/search.html', {'results': results, 'query': query})
@@ -26,7 +25,7 @@ def search(request):
     return render(request, 'dictionary/search_result.html', {'results': results, 'query': query})
 
 
-
+''' UXが良くないため、一旦不要でコメントアウト
 # 英和辞典
 @login_required
 def search_english(request):
@@ -65,3 +64,4 @@ def search_japanese(request):
         return render(request, 'dictionary/search_japanese.html', {'results': results, 'query': query})
     
     return render(request, 'dictionary/search_result.html', {'results': results, 'query': query, 'language': language})
+'''
