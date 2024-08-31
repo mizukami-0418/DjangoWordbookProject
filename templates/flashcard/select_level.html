@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>単語帳モード</h2>
+<h5>{{ request.user.username }}さんこんにちは！<br>難易度を選択してください</h5>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        {% for level in levels %}
+            <p><button type="submit" name="level" value="{{ level.id }}">{{ level.name }}({{ level.description }})</button></p>
+        {% endfor %}
+    </div>
+</form>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'user_home' %}">ホームへ戻る</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
+{% endblock %}

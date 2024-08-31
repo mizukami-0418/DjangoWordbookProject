@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
-    path('', views.search, name='search'),
+    path('', views.select_level, name='select_level'),
 ]

@@ -3,10 +3,6 @@ from django.shortcuts import render
 from django.db.models import Q
 from .models import Word
 
-# モード選択 選択機能を廃止したので一旦コメントアウト
-# @login_required
-# def mode_choice(request):
-#     return render(request, 'dictionary/mode_choice.html')
 
 # 単語検索機能
 @login_required

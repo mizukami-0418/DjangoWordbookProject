@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'contact',
     'dictionary',
+    'flashcard',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
