@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from dictionary.models import Word, Level
 from django.http import HttpResponse
+from django.contrib import messages
 import random
 
 
@@ -76,18 +77,19 @@ def quiz(request):
         request.session['question_index'] = 0 # 最初の問題番号を0にする
         request.session['score'] = 0 # 正解数を0に設定
         request.session['question_ids'] = question_ids # 抽出したid
+        request.session['total_questions'] = total_questions
         
     # 現在の問題indexを取得
     question_index = request.session['question_index']
     
     # 問題番号が問題数以上になれば全て終了
-    if question_index >= total_questions:
-        return redirect('result')
+    '''if question_index >= total_questions:
+        return redirect('result')'''
     
     # idから問題の単語を抽出する
     question_id = request.session['question_ids'][question_index]
     current_question = Word.objects.get(id=question_id)
-    
+    '''
     if request.method == 'POST':
         # ユーザーの回答を両端の空白を削除し、小文字に変換する
         answer = request.POST.get('answer').strip().lower()
@@ -99,17 +101,63 @@ def quiz(request):
         request.session['question_index'] += 1
         
         return redirect('quiz')
-
+    '''
     return render(request, 'flashcard/quiz.html', {'current_question': current_question, 'mode': mode, 'question_index': question_index, 'level': level})
     
     
+def check_answer(request):
+    level_id = request.session.get('level_id')
+    level = get_object_or_404(Level, id=level_id)
+    mode = request.session.get('mode')
+    question_index = request.session['question_index']
+    total_questions = request.session['total_questions']
+    question_id = request.session['question_ids'][question_index]
+    current_question = Word.objects.get(id=question_id)
+    
+    if request.method == 'POST':
+        # ユーザーの回答を両端の空白を削除し、小文字に変換する
+        answer = request.POST.get('answer').strip().lower()
+        correct_answer = current_question.english if mode == 'en' else current_question.japanese
+        if answer == correct_answer:
+            messages.success(request, '正解！！！！')
+            request.session['score'] += 1 # 正解数を１加算
+        else:
+            messages.success(request, '残念')
+        request.session['question_index'] += 1 # 問題番号を1加算
+        next_question_index = request.session['question_index']
+        
+        # 問題数の確認
+        if next_question_index == total_questions:
+            context = {
+                'current_question': current_question,
+                'mode': mode,
+                'level': level,
+            }
+            return render(request, 'flashcard/last_check_answer.html', context)
+        else:
+            context = {
+                'current_question': current_question,
+                'mode': mode,
+                'level': level,
+            }
+            return render(request, 'flashcard/check_answer.html', context)
+    
 def result(request):
+    level_id = request.session.get('level_id')
+    level = get_object_or_404(Level, id=level_id)
+    mode = request.session.get('mode')
     score = request.session.get('score')
     total_questions = request.session.get('num_questions')
     correct_answer_rate = int(score / total_questions * 100)
     
     request.session.flush()
     
-    return render(request, 'flashcard/result.html', {
-        'score': score, 'total_questions': total_questions, 'correct_answer_rate':correct_answer_rate
-    })
+    context = {
+        'score': score,
+        'total_questions': total_questions,
+        'correct_answer_rate':correct_answer_rate,
+        'level':level,
+        'mode':mode,
+    }
+    
+    return render(request, 'flashcard/result.html', context)

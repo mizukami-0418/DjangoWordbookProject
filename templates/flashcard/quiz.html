@@ -17,7 +17,7 @@
 {% comment %} 英訳モード {% endcomment %}
     <p>次の日本語を英訳してください</p>
     <p>日本語：{{ current_question.japanese }}</p>
-    <form method="post">
+    <form method="post" action="{% url 'check_answer' %}">
         {% csrf_token %}
         <p><input type="text" name="answer" id='answer' placeholder='回答を入力'></p>
         <p><button type="submit">回答する</button></p>
@@ -26,7 +26,7 @@
 {% comment %} 和訳モード {% endcomment %}
     <p>次の英語を和訳してください</p>
     <p>英語：{{ current_question }}</p>
-    <form method="post">
+    <form method="post" action="{% url 'check_answer' %}">
         {% csrf_token %}
         <p><input type="text" name="answer" id='answer' placeholder='回答を入力'></p>
         <p><button type="submit">回答する</button></p>
