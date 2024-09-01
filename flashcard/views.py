@@ -64,7 +64,7 @@ def quiz(request):
     if not level_id and mode and num_questions:
         return redirect('select_level')
     
-    words = Word.objects.filter(level_id=level_id) # 選択した難易度の単語を抽出
+    words = Word.objects.filter(level_id=level_id) # 選択した難易度の単語を全て抽出
     # 抽出した単語が選択した出題数より少ない場合、エラーにならないための処理
     total_questions = min(num_questions, words.count())
     
@@ -82,7 +82,7 @@ def quiz(request):
     
     # 問題番号が問題数以上になれば全て終了
     if question_index >= total_questions:
-        return HttpResponse('resultへ')
+        return redirect('result')
     
     # idから問題の単語を抽出する
     question_id = request.session['question_ids'][question_index]
@@ -101,3 +101,15 @@ def quiz(request):
         return redirect('quiz')
 
     return render(request, 'flashcard/quiz.html', {'current_question': current_question, 'mode': mode, 'question_index': question_index, 'level': level})
+    
+    
+def result(request):
+    score = request.session.get('score')
+    total_questions = request.session.get('num_questions')
+    correct_answer_rate = int(score / total_questions * 100)
+    
+    request.session.flush()
+    
+    return render(request, 'flashcard/result.html', {
+        'score': score, 'total_questions': total_questions, 'correct_answer_rate':correct_answer_rate
+    })
