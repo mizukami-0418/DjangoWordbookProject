@@ -21,7 +21,6 @@ def select_level(request):
 # セッションデータ取得用ヘルパー関数
 def get_quiz_session_data(request):
     level_id = request.session.get('level_id')
-    print(level_id)
     mode = request.session.get('mode')
     num_questions = request.session.get('num_questions')
     
@@ -35,6 +34,7 @@ def select_mode(request):
     # ヘルパー関数を使用し、levelを取得
     level, _, _ = get_quiz_session_data(request)
     if level is None:
+        messages.error(request, 'エラーが発生しました。最初からお願いします')
         return redirect('select_level')
     
     if request.method == 'POST':
@@ -51,16 +51,20 @@ def select_num_questions(request):
     # セッションデータから難易度とモードを取得
     level, mode, _ = get_quiz_session_data(request)
     if not(level and mode):
+        messages.error(request, 'エラーが発生しました。再度選択してください')
         return redirect(select_level)
-    elif level and mode is None:
-        return redirect(select_mode)
     
     if request.method == 'POST':
         # ポストデータの問題数をセッションに保管
-        num_questions = int(request.POST.get('num_questions'))
-        request.session['num_questions'] = num_questions
+        num_questions = request.POST.get('num_questions')
+        # num_questionsのバリデーション
+        if num_questions is None or not num_questions.isdigit() or int(num_questions) <= 0:
+            messages.error(request, 'エラーが発生しました。再度問題数を選択してください')
+            return render(request, 'flashcard/select_num_questions.html', {'level': level, 'mode': mode})
+        # 正常な場合は、セッションに保存しリダイレクト
+        request.session['num_questions'] = int(num_questions)
         return redirect('quiz')
-    
+    # GETリクエストは選択画面を表示
     return render(request, 'flashcard/select_num_questions.html', {'level': level, 'mode': mode})
 
 
@@ -69,7 +73,7 @@ def quiz(request):
     # ヘルパー関数を使用し、levelを取得
     level, mode, num_questions = get_quiz_session_data(request)
     if not (level and mode and num_questions):
-        messages.error(request, 'もう一度難易度選択からお願いします')
+        messages.error(request, 'エラーが発生しました。最初からお願いします')
         return redirect(select_level)
     
     # セッションに問題番号がない場合は新規で保存
@@ -102,9 +106,8 @@ def quiz(request):
 def check_answer(request):
     level, mode, _ = get_quiz_session_data(request)
     if not(level and mode):
+        messages.error(request, 'エラーが発生しました。難易度選択からお願いします')
         return redirect(select_level)
-    elif level and mode is None:
-        return redirect(select_mode)
     
     question_index = request.session['question_index']
     total_questions = request.session['total_questions']
@@ -114,13 +117,21 @@ def check_answer(request):
     if request.method == 'POST':
         # ユーザーの回答を両端の空白を削除し、小文字に変換する
         answer = request.POST.get('answer').strip().lower()
-        correct_answer = current_question.english if mode == 'en' else current_question.japanese
-        if answer == correct_answer:
-            messages.success(request, '正解！！！！')
-            request.session['score'] += 1 # 正解数を１加算
+        # モードごとにcorrect_answerを取得する
+        correct_answer = current_question.english if mode == 'en' else current_question.japanese.split(',')
+        if mode == 'en':
+            if answer == correct_answer:
+                messages.success(request, '正解！！！！')
+                request.session['score'] += 1 # 正解数を１加算
+            else:
+                messages.error(request, '残念')
         else:
-            messages.error(request, '残念')
-            
+            if any(answer == correct_answer_japanese.strip() for correct_answer_japanese in correct_answer):
+                messages.success(request, '正解！！！！')
+                request.session['score'] += 1 # 正解数を１加算
+            else:
+                messages.error(request, '残念')
+
         request.session['question_index'] += 1 # 問題番号を1加算
         next_question_index = request.session['question_index']
         
@@ -144,7 +155,10 @@ def result(request):
     score = request.session.get('score')
     correct_answer_rate = int(score / num_questions * 100)
     
-    request.session.flush()
+    quiz_session_keys = ['level_id', 'mode', 'num_questions', 'question_index', 'score', 'question_ids', 'total_questions']
+    for key in quiz_session_keys:
+        if key in request.session:
+            del request.session[key]
     
     context = {
         'score': score,
