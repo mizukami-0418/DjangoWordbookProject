@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>単語帳モード</h2>
+<h5>{{ level.name }}クラス</h5>
+<h5>{% if mode == 'en' %}英訳モード{% else %}和訳モード{% endif %}</h5>
+{% include "templates/includes/message.html" %}
+<h4>正解</h4>
+<p>{{ current_question }}</p>
+<p>{{ current_question.japanese }}</p>
+<p>{{ current_question.part_of_speech }}</p>
+<p>{{ current_question.phrase }}</p>
+<button><a href="{% url 'result' %}">結果を表示</a></button>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'user_home' %}">ホームへ戻る</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
+{% endblock %}
