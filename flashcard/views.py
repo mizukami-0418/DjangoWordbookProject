@@ -1,9 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from dictionary.models import Word, Level
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.contrib import messages
+from .models import UserProgress
 import random
-
+import json
 
 # 難易度セレクト
 def select_level(request):
@@ -33,139 +34,195 @@ def get_quiz_session_data(request):
 def select_mode(request):
     # ヘルパー関数を使用し、levelを取得
     level, _, _ = get_quiz_session_data(request)
+    # 入力確認
     if level is None:
         messages.error(request, 'エラーが発生しました。最初からお願いします')
         return redirect('select_level')
     
+    # POSTリクエスト
     if request.method == 'POST':
         # 英訳か和訳のモードを取得し、セッションに保持する
         mode = request.POST.get('mode')
         request.session['mode'] = mode
         return redirect('select_num_questions')
     
+    # GETリクエスト
     return render(request, 'flashcard/select_mode.html', {'level': level})
 
 
 # 問題数セレクト
 def select_num_questions(request):
-    # セッションデータから難易度とモードを取得
+    # ヘルパー関数で難易度とモードを取得
     level, mode, _ = get_quiz_session_data(request)
     if not(level and mode):
         messages.error(request, 'エラーが発生しました。再度選択してください')
-        return redirect(select_level)
+        return redirect('select_level')
     
+    # POSTリクエスト
     if request.method == 'POST':
-        # ポストデータの問題数をセッションに保管
+        # ポストデータの問題数を取得
         num_questions = request.POST.get('num_questions')
         # num_questionsのバリデーション
         if num_questions is None or not num_questions.isdigit() or int(num_questions) <= 0:
             messages.error(request, 'エラーが発生しました。再度問題数を選択してください')
+            # もう一度問題数セレクトを表示
             return render(request, 'flashcard/select_num_questions.html', {'level': level, 'mode': mode})
         # 正常な場合は、セッションに保存しリダイレクト
         request.session['num_questions'] = int(num_questions)
-        return redirect('quiz')
-    # GETリクエストは選択画面を表示
+        return redirect('select_quiz')
+    
+    # GETリクエスト
     return render(request, 'flashcard/select_num_questions.html', {'level': level, 'mode': mode})
 
 
-# 単語帳クイズ
-def quiz(request):
-    # ヘルパー関数を使用し、levelを取得
+# 「最初から」か「続きから」を選択する
+def select_quiz(request):
+    # ヘルパー関数を使用し、level他を取得
     level, mode, num_questions = get_quiz_session_data(request)
     if not (level and mode and num_questions):
         messages.error(request, 'エラーが発生しました。最初からお願いします')
-        return redirect(select_level)
+        return redirect('select_level')
     
-    # セッションに問題番号がない場合は新規で保存
-    if 'question_index' not in request.session:
-        words = Word.objects.filter(level_id=level.id) # 選択した難易度の単語を全て抽出
-        # 抽出した単語が選択した出題数より少ない場合、エラーにならないための処理
-        total_questions = min(num_questions, words.count())
+    user_progress = UserProgress.objects.filter(user=request.user, level=level, mode=mode, total_questions=num_questions, is_completed=False).first()
     
-        # 抽出した単語の中から問題数分のidをランダムで取得
-        question_ids = random.sample(list(words.values_list('id', flat=True)), total_questions)
-        # 各データをセッションに保存
-        request.session.update({
-            'question_index': 0, # 最初の問題番号を0にする
-            'score': 0, # 正解数を0に設定
-            'question_ids': question_ids, # 抽出したid
-            'total_questions': total_questions,
-        })
-    else:
-        total_questions = request.session['total_questions'] # 問題数を取得
-        
-    # 現在の問題indexを取得
-    question_index = request.session['question_index']
-    # idから問題の単語を抽出する
-    question_id = request.session['question_ids'][question_index]
-    current_question = get_object_or_404(Word, id=question_id)
-    
-    return render(request, 'flashcard/quiz.html', {'current_question': current_question, 'mode': mode, 'question_index': question_index, 'level': level})
-    
-    
-def check_answer(request):
-    level, mode, _ = get_quiz_session_data(request)
-    if not(level and mode):
-        messages.error(request, 'エラーが発生しました。難易度選択からお願いします')
-        return redirect(select_level)
-    
-    question_index = request.session['question_index']
-    total_questions = request.session['total_questions']
-    question_id = request.session['question_ids'][question_index]
-    current_question = get_object_or_404(Word, id=question_id)
-    
+    # POSTリクエスト
     if request.method == 'POST':
-        # ユーザーの回答を両端の空白を削除し、小文字に変換する
-        answer = request.POST.get('answer').strip().lower()
-        # モードごとにcorrect_answerを取得する
-        correct_answer = current_question.english if mode == 'en' else current_question.japanese.split(',')
-        if mode == 'en':
-            if answer == correct_answer:
-                messages.success(request, '正解！！！！')
-                request.session['score'] += 1 # 正解数を１加算
-            else:
-                messages.error(request, '残念')
-        else:
-            if any(answer == correct_answer_japanese.strip() for correct_answer_japanese in correct_answer):
-                messages.success(request, '正解！！！！')
-                request.session['score'] += 1 # 正解数を１加算
-            else:
-                messages.error(request, '残念')
-
-        request.session['question_index'] += 1 # 問題番号を1加算
-        next_question_index = request.session['question_index']
+        # POStリクエストからquiz_mode(newかcontinue)を取得
+        selection = request.POST.get('quiz_mode')
         
-        context = {
-            'current_question': current_question,
-            'mode': mode,
-            'level': level,
-        }
-        # 問題数の確認
-        if next_question_index == total_questions:
-            return render(request, 'flashcard/last_check_answer.html', context)
+        # 「最初から」を選んだ場合、新しくクイズを開始する
+        if selection == 'new':
+            return redirect('quiz')
+        # 「前回の続きから」はuser_progress.idからデータを取得し、再開する
+        elif selection == 'continue':
+            return redirect('quiz_restart', progress_id=user_progress.id)
         else:
-            return render(request, 'flashcard/check_answer.html', context)
-    
-def result(request):
+            messages.error(request, 'エラーが発生しました。最初からお願いします。')
+            return redirect('select_level')
+    # GETリクエストの場合は、フォームを表示する
+    context = {
+        'level': level,
+        'mode': mode,
+        'num_questions': num_questions,
+        'user_progress': user_progress,
+    }
+    return render(request, 'flashcard/select_quiz.html', context)
+
+
+# 単語帳クイズの初期設定を行う関数
+def quiz(request):
+    # ヘルパー関数を使用し、データを取得
     level, mode, num_questions = get_quiz_session_data(request)
     if not (level and mode and num_questions):
-        messages.error(request, 'もう一度難易度選択からお願いします')
-        return redirect(select_level)
+        messages.error(request, 'エラーが発生しました。難易度選択からお願いします')
+        return redirect('select_level')
     
-    score = request.session.get('score')
-    correct_answer_rate = int(score / num_questions * 100)
-    
-    quiz_session_keys = ['level_id', 'mode', 'num_questions', 'question_index', 'score', 'question_ids', 'total_questions']
-    for key in quiz_session_keys:
-        if key in request.session:
-            del request.session[key]
+    words = Word.objects.filter(level_id=level.id) # 選択した難易度の単語を全て抽出
+    # 抽出した単語が選択した出題数より少ない場合、エラーにならないための処理
+    total_questions = min(num_questions, words.count())
+    # total_questionsの数だけ、wordsからidで取得
+    questions = random.sample(list(words.values_list('id', flat=True)), total_questions)
+    question_index = 0
+    score = 0
+    # 途中経過保存用UserProgressモデルを作成
+    user_progress = UserProgress.objects.create(
+        user=request.user,
+        level=level,
+        mode=mode,
+        score=score,
+        total_questions=total_questions,
+        current_question_index=question_index,
+        question_ids=json.dumps(questions),
+    )
+    # questionsからインデックスをquestion_indexでidを取得
+    question_id = questions[question_index]
+    # Wordモデルからquestion_idで問題を取得
+    current_question = Word.objects.get(id=question_id)
     
     context = {
-        'score': score,
-        'total_questions': num_questions,
+        'current_question': current_question,
+        'user_progress': user_progress,
+    }
+    
+    return render(request, 'flashcard/quiz.html', context)
+
+# 現在の問題を取得するヘルパー関数
+def get_current_question(request, progress_id):
+    user_progress = get_object_or_404(UserProgress, id=progress_id, user=request.user, is_completed=False)
+    questions = json.loads(user_progress.question_ids)
+    question_id = questions[user_progress.current_question_index]
+    current_question = get_object_or_404(Word, id=question_id)
+    
+    return user_progress, current_question
+
+# 中断データで再開
+def quiz_restart(request, progress_id):
+    # get_current_questionで進捗状況と現在の問題を取得
+    user_progress, current_question = get_current_question(request, progress_id)
+    
+    context = {
+        'current_question': current_question,
+        'user_progress': user_progress,        
+    }
+    
+    return render(request, 'flashcard/quiz.html', context)
+
+
+# 回答の正誤を判定する関数
+def check_answer(request, progress_id):
+    # get_current_questionで進捗状況と現在の問題を取得
+    user_progress, current_question = get_current_question(request, progress_id)
+    answer = request.POST.get('answer').strip().lower() #POSTリクエストからanswerを取得
+    # 問題の解答を取得
+    correct_answer = current_question.english if user_progress.mode == 'en' else current_question.japanese.split(',')
+    if request.method == 'POST':
+        # 英訳モード
+        if user_progress.mode == 'en':
+            if answer == correct_answer:
+                messages.success(request, '正解！！！！')
+                user_progress.score += 1 # 正解数を１加算
+            else:
+                messages.error(request, '残念')
+        else: # 和訳モード
+            if any(answer == correct_answer_japanese.strip() for correct_answer_japanese in correct_answer):
+                messages.success(request, '正解！！！！')
+                user_progress.score += 1 # 正解数を１加算
+            else:
+                messages.error(request, '残念')
+                
+        user_progress.current_question_index += 1 # 問題番号を1加算
+        
+        # 問題数の確認
+        if user_progress.current_question_index >= user_progress.total_questions:
+            user_progress.is_completed = True
+            user_progress.save()
+            return render(request, 'flashcard/last_check_answer.html', {'user_progress':user_progress, 'current_question': current_question})
+        else:
+            user_progress.save()
+            return render(request, 'flashcard/check_answer.html', {'user_progress': user_progress, 'current_question': current_question})
+    
+    # POSTリクエスト以外は404エラーを返す
+    else:
+        raise Http404('Page Not Found')
+
+# クイズ中断用関数
+def pause_quiz(request, progress_id):
+    user_progress = get_object_or_404(UserProgress, id=progress_id, user=request.user)
+    
+    if not user_progress.is_completed:
+        # user_progressを保存する
+        user_progress.save()
+
+    messages.success(request, '途中経過を保存しました')
+    return redirect('user_home')
+
+
+def result(request, progress_id):
+    user_progress = get_object_or_404(UserProgress, id=progress_id)
+    correct_answer_rate = int( user_progress.score / user_progress.total_questions * 100)
+    context = {
         'correct_answer_rate':correct_answer_rate,
-        'level':level,
-        'mode':mode,
+        'user_progress': user_progress,
     }
     
     return render(request, 'flashcard/result.html', context)

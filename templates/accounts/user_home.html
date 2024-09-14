@@ -1,11 +1,11 @@
-<!-- templates/user_home.html -->
+<!-- templates/accounts/user_home.html -->
 {% extends "base.html" %}
 
 {% block title %}USER HOME{% endblock title %}
 
 {% block content %}
 <h1>Application Title</h1>
-{% include "includes/message.html" %}
+{% include "templates/includes/message.html" %}
 <h4>{{ request.user.username }}さんこんにちは！</h4>
 <h5>最初にモードを選択してね</h5>
 <ul>
