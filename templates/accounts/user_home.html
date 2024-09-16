@@ -1,15 +1,16 @@
 <!-- templates/accounts/user_home.html -->
 {% extends "base.html" %}
 
-{% block title %}USER HOME{% endblock title %}
+{% block title %}USER HOME{% endblock %}
 
 {% block content %}
 <h1>Application Title</h1>
 {% include "templates/includes/message.html" %}
 <h4>{{ request.user.username }}さんこんにちは！</h4>
 <h5>最初にモードを選択してね</h5>
-<p><a href="{% url 'search' %}" class="btn btn-primary">辞書モード</a></p>
-<p><a href="{% url 'select_quiz'%}" class="btn btn-primary">単語帳モード</a></p>
+
+<p><a href="{% url 'search' %}" class="btn">辞書モード</a></p>
+<p><a href="{% url 'select_quiz'%}" class="btn">単語帳モード</a></p>
 <p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
 <p><a href="{% url 'contact' %}">問い合わせ</a></p>
 <p><a href="{% url 'logout' %}">ログアウト</a></p>
