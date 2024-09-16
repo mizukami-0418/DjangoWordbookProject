@@ -73,6 +73,7 @@ def select_mode(request):
     # GETリクエスト
     return render(request, 'flashcard/select_mode.html', {'level': level})
 
+
 # 問題数セレクト
 def select_num_questions(request):
     # ヘルパー関数で難易度とモードを取得
