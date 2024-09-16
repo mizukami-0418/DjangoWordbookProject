@@ -8,11 +8,9 @@
 {% include "templates/includes/message.html" %}
 <h4>{{ request.user.username }}さんこんにちは！</h4>
 <h5>最初にモードを選択してね</h5>
-<ul>
-    <li><button><a href="{% url 'search' %}">辞書モード</a></button></li>
-    <li><button><a href="{% url 'select_level'%}">単語帳モード</a></button></li>
-    <li><a href="{% url 'detail' %}">ユーザー情報はこちら</a></li>
-    <li><a href="{% url 'contact' %}">問い合わせ</a></li>
-    <li><a href="{% url 'logout' %}">ログアウト</a></li>
-</ul>
+<p><a href="{% url 'search' %}" class="btn btn-primary">辞書モード</a></p>
+<p><a href="{% url 'select_quiz'%}" class="btn btn-primary">単語帳モード</a></p>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'contact' %}">問い合わせ</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
 {% endblock %}

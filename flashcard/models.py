@@ -13,6 +13,7 @@ class UserProgress(models.Model):
     question_ids = models.TextField(blank=0, null=True) # 出題された問題のIDリストをシリアライズして保存
     completed_at = models.DateTimeField(auto_now_add=True) # 完了日時
     is_completed = models.BooleanField(default=False) # 完了しているかどうか
+    is_paused = models.BooleanField(default=False) # 中断データがあるか
     
     class Meta:
         db_table = 'user_progress'

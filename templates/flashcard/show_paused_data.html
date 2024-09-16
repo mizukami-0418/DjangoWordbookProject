@@ -1,0 +1,56 @@
+<h2>中断したクイズ</h2>
+
+{% if user_progress_data %}
+<table>
+    <thead>
+        <tr>
+            <th>レベル</th>
+            <th>モード</th>
+            <th>出題数</th>
+            <th>回答数</th>
+            <th>正解数</th>
+            <th>正答率</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user_progress in user_progress_data %}
+        <tr>
+            <td>{{ user_progress.level.name }}</td>
+            <td>{% if user_progress.mode == 'en' %}英訳{% else %}和訳{% endif %}</td>
+            <td>{{ user_progress.total_questions }}</td>
+            <td>{{ user_progress.current_question_index }}</td>
+            <td>{{ user_progress.score }}</td>
+            <td>{{ user_progress.score }} / {{ user_progress.current_question_index }}</td>
+            <td>
+                <form method="post" action="{% url 'quiz_restart' user_progress.id %}">
+                    {% csrf_token %}
+                    <button type="submit">再開</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'user_home' %}">ホームへ戻る</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
+
+
+    {% comment %} <ul>
+        {% for user_progress in user_progress_data %}
+            <li>
+                <!-- クイズ情報を表示 -->
+                レベル: {{ user_progress.level.name }} | モード: {% if user_progress.mode == 'en' %}英訳{% else %}和訳{% endif %} | 正解数: {{ user_progress.score }}/{{ user_progress.total_questions }} | 回答数: {{ user_progress.current_question_index }}
+                <!-- 再開ボタン -->
+                <form method="post" action="{% url 'quiz_restart' user_progress.id %}">
+                    {% csrf_token %}
+                    <button type="submit">再開</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul> {% endcomment %}
+{% else %}
+    <p>中断したクイズはありません。</p>
+{% endif %}
+
