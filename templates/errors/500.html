@@ -1,0 +1,11 @@
+{% extends "base_error.html" %}
+{% block title %}SERVER ERROR{% endblock %}
+{% block content %}
+<h1>Internal Server Error</h1>
+<p>サーバーエラーが発生しました。しばらくしてから再度お試しください。</p>
+<p>下記のリンクより移動をお願いします。</p>
+<p><a href="{% url 'home' %}">トップページ</a></p>
+<p><a href="{% url 'user_home' %}">ホーム</a></p>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
+{% endblock %}
