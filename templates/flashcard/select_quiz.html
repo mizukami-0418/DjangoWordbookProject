@@ -2,8 +2,12 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>単語帳モード</h2>
-{% if user_progress %}
-<p>クイズを最初から始めますか？それとも前回の続きから始めますか？</p>
+{% if user_progress and user_word_status %}
+<p>クイズモードを選択してください</p>
+{% elif user_progress is None and user_word_status %}
+<p>最初から始めますか？それとも復習しますか？</p>
+{% elif user_progress and user_word_status is None %}
+<p>最初から始めますか？それとも続きからプレイしますか？</p>
 {% else %}
 <p>クイズを最初から始めます!!</p>
 {% endif %}
@@ -12,6 +16,9 @@
     <p><button type="submit" name="quiz_mode" value="new">最初から</button></p>
     {% if user_progress %}
     <p><button type="submit" name="quiz_mode" value="continue">前回の続きから</button></p>
+    {% endif %}
+    {% if user_word_status %}
+    <p><button type="submit" name="quiz_mode" value="review">復習モード</button></p>
     {% endif %}
 </form>
 <p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
