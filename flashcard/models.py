@@ -22,7 +22,8 @@ class UserProgress(models.Model):
         verbose_name_plural = 'ユーザー進行状況'
     
     def __str__(self):
-        return f"{self.user.username} - {self.level.name} - {self.mode}: {self.score}/{self.total_questions}"
+        return self.user.username
+        # return f"{self.user.username} - {self.level.name} - {self.mode}: {self.score}/{self.total_questions}"
 
 
 class UserWordStatus(models.Model):

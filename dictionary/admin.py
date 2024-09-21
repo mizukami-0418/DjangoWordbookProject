@@ -3,19 +3,21 @@ from .models import PartOfSpeech, Level, Word
 
 
 class PartOfSpeechAdmin(admin.ModelAdmin):
-    list_display = ('name', 'count')
+    list_display = ('name', 'part_of_speech_count_display')
+    list_filter = ('name',)
     
-    def count(self, obj):
-        return Word.objects.filter(part_of_speech=obj, part_of_speech__name='名詞').count()
-    count.short_description = '登録数'
+    def part_of_speech_count_display(self, obj):
+        return obj.part_of_speech_count
+    part_of_speech_count_display.short_description = '登録数'
 
 
 class LevelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'count')
+    list_display = ('name', 'description', 'level_count_display')
+    list_filter = ('name',)
     
-    def count(self, obj):
-        return Word.objects.filter(level=obj, level__name='初級').count()
-    count.short_description = '登録数'
+    def level_count_display(self, obj):
+        return obj.level_count
+    level_count_display.short_description = '登録数'
 
 class WordAdmin(admin.ModelAdmin):
     list_display = ('english', 'japanese', 'part_of_speech', 'phrase', 'level')
