@@ -17,7 +17,9 @@
     {% if user_progress %}
     <p><button type="submit" name="quiz_mode" value="continue">前回の続きから</button></p>
     {% endif %}
-    {% if user_word_status %}
+    {% if review_progress and user_word_status %}
+    <p><button type="submit" name="quiz_mode" value="review_continue">復習モードの続きから</button></p>
+    {% elif user_word_status %}
     <p><button type="submit" name="quiz_mode" value="review">復習モード</button></p>
     {% endif %}
 </form>
