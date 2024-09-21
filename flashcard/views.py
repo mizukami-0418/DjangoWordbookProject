@@ -11,6 +11,7 @@ import json
 @login_required
 def select_quiz(request):
     user_progress = UserProgress.objects.filter(user=request.user,is_completed=False).first()
+    review_progress = UserReviewProgress.objects.filter(user=request.user, is_completed=False).first()
     user_word_status = UserWordStatus.objects.filter(user=request.user, is_correct=False).first()
     
     # POSTリクエスト
@@ -25,6 +26,8 @@ def select_quiz(request):
         elif selection == 'continue':
             user_progress_data = UserProgress.objects.filter(user=request.user, is_completed=False).all()
             return render(request, 'flashcard/show_paused_data.html', {'user_progress_data': user_progress_data})
+        elif selection == 'review_continue':
+            return redirect('review_quiz', review_id=review_progress.id)
         elif selection == 'review':
             return render(request, 'flashcard/review_select_mode.html')
         # quiz_modeを取得できないか、上記以外の場合はuser_homeへ
@@ -35,6 +38,7 @@ def select_quiz(request):
     # GETリクエストの場合、contextに進行状況と正誤データを渡し、select_quiz.htmlにレンダリング
     context = {
         'user_progress': user_progress,
+        'review_progress': review_progress,
         'user_word_status': user_word_status,
     }
     return render(request, 'flashcard/select_quiz.html', context)
