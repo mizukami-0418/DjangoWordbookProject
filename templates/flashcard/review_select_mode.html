@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>復習モード</h2>
+<h6>モードを選択してください</h6>
+<form method="post" action="{% url 'start_review'  %}">
+    {% csrf_token %}
+    <div>
+        <p><button type="submit" name="mode" value="en">英訳</button></p>
+        <p><button type="submit" name="mode" value="ja">和訳</button></p>
+    </div>
+</form>
+<p><a href="{% url 'detail' %}">ユーザー情報はこちら</a></p>
+<p><a href="{% url 'user_home' %}">ホームへ戻る</a></p>
+<p><a href="{% url 'logout' %}">ログアウト</a></p>
+{% endblock %}
